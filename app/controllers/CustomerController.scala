@@ -162,11 +162,13 @@ class CustomerController @Inject() (ws: WSClient, config: Configuration) extends
       case ex: Exception =>
         System.out.println(ex)
     }
+    val safeUsername = username.replace("'", "&apos;")
+    val safePassword = password.replace("'", "&apos;")
     val query =
-      s"//user[username/text()='${username}' and password/text()='${password}']"
+      s"//user[username/text()='${safeUsername}' and password/text()='${safePassword}']"
     val result = XPath.selectText(query, dom)
     if (result.trim.length == 0) BadRequest("Error with your credentials!")
-    else Ok(new Html("Hello " + result.trim.split(" ")(0)))
+    else Ok(new Html("Hello " + HtmlFormat.escape(result.trim.split(" ")(0)).toString))
   }
 
   // GET /customersXml
