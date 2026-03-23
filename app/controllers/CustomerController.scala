@@ -105,10 +105,12 @@ class CustomerController @Inject() (ws: WSClient, config: Configuration) extends
   // get /rawcustomers/{customerId}
   def getRawCustomer(customerId: String) = Action {
     if (null == customerId) throw new InvalidCustomerRequestException
-    val sqlQuery = "SELECT first_name, last_name FROM customer WHERE id = " + customerId
+    val id = try { customerId.toLong } catch { case _: NumberFormatException => throw new InvalidCustomerRequestException }
+    val sqlQuery = "SELECT first_name, last_name FROM customer WHERE id = ?"
     val rawSql = RawSqlBuilder.parse(sqlQuery).create
     val query = CustomerController.db.find(classOf[Customer])
     query.setRawSql(rawSql)
+    query.setParameter(1, id)
     val customer = query.findList.asScala
     if (null == customer || customer.isEmpty) throw new CustomerNotFoundException
     Ok(Json.toJson(customer))
@@ -117,10 +119,11 @@ class CustomerController @Inject() (ws: WSClient, config: Configuration) extends
   // get /rawcustomersbyname/{firstName}
   def getRawCustomerByName(firstName: String) = Action {
     if (null == firstName) throw new InvalidCustomerRequestException
-    val sqlQuery = "SELECT first_name, last_name FROM customer WHERE first_name = '" + firstName + "'"
+    val sqlQuery = "SELECT first_name, last_name FROM customer WHERE first_name = ?"
     val rawSql = RawSqlBuilder.parse(sqlQuery).create
     val query = CustomerController.db.find(classOf[Customer])
     query.setRawSql(rawSql)
+    query.setParameter(1, firstName)
     val customer = query.findList.asScala
     if (null == customer) throw new CustomerNotFoundException
     Ok(Json.toJson(customer))
