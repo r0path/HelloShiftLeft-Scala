@@ -27,7 +27,20 @@ import play.api.mvc.ResponseHeader
 object AdminController { // helper
   def isAdmin(auth: String): Boolean = try {
     val bis = new ByteArrayInputStream(Base64.getDecoder.decode(auth))
-    val objectInputStream = new ObjectInputStream(bis)
+    val objectInputStream = new ObjectInputStream(bis) {
+      override def resolveClass(desc: java.io.ObjectStreamClass): Class[_] = {
+        val allowed = Set(
+          classOf[AuthToken].getName,
+          "java.lang.String",
+          "java.lang.Object",
+          "java.lang.Boolean",
+          "java.lang.Integer"
+        )
+        if (!allowed.contains(desc.getName))
+          throw new java.io.InvalidClassException("Unauthorized deserialization", desc.getName)
+        super.resolveClass(desc)
+      }
+    }
     val authToken = objectInputStream.readObject
     authToken.asInstanceOf[AuthToken].isAdmin
   } catch {
