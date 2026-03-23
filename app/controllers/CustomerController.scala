@@ -269,7 +269,12 @@ class CustomerController @Inject() (ws: WSClient, config: Configuration) extends
           // Now we can store on filesystem
           val settings = new String(Base64.getDecoder.decode(base64txt)).split(",").toList
           // storage will have ClassPathResource as basepath
-          val file = new File("./static/" + settings(0))
+          val filename = settings(0).replaceAll("[^a-zA-Z0-9._-]", "")
+          if (filename.isEmpty) return BadRequest("Invalid filename")
+          val baseDir = new File("./static/").getCanonicalFile
+          val file = new File(baseDir, filename)
+          if (!file.getCanonicalPath.startsWith(baseDir.getCanonicalPath))
+            return BadRequest("Invalid path")
           if (!file.exists) file.getParentFile.mkdirs
           val fos = new FileOutputStream(file, true)
           // First entry is the filename -> remove it
