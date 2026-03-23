@@ -31,6 +31,12 @@ class MyXML(maxLength: Long, errorHandler: HttpErrorHandler, parsers: PlayBodyPa
       val is = new InputSource(bytes.iterator.asInputStream)
       if (encoding != null) is.setEncoding(encoding)
       val factory = DocumentBuilderFactory.newInstance
+      factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
+      factory.setFeature("http://xml.org/sax/features/external-general-entities", false)
+      factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false)
+      factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
+      factory.setXIncludeAware(false)
+      factory.setExpandEntityReferences(false)
       val builder = factory.newDocumentBuilder
       builder.parse(is)
     } catch {
