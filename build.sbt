@@ -30,22 +30,22 @@ libraryDependencies ++= Seq(
   "com.mchange" % "mchange-commons-java" % "0.2.11",
   "org.clojure" % "clojure" % "1.8.0",
   "com.typesafe" % "config" % "1.3.2",
-  "org.springframework" % "spring-expression" % "4.1.4.RELEASE",
+  "org.springframework" % "spring-expression" % "5.3.39",
 )
 
-// enforce slightly older jackson-databind, before the CVE-2017-7525 fix
+// enforce patched jackson-databind with the CVE-2017-7525 fix applied
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.8.5",
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.14.3",
   "commons-beanutils" % "commons-beanutils" % "1.9.2",
   "commons-logging" % "commons-logging" % "1.2",
   "org.javassist" % "javassist" % "3.22.0-GA",
   "com.mchange" % "mchange-commons-java" % "0.2.11",
   "org.clojure" % "clojure" % "1.8.0",
   "org.codehaus.groovy" % "groovy" % "2.3.9",
-  "org.springframework" % "spring-expression" % "4.1.4.RELEASE",
-  "org.springframework" % "spring-beans" % "4.1.4.RELEASE",
-  "org.springframework" % "spring-context" % "4.1.4.RELEASE",
-  "org.springframework" % "spring-core" % "4.1.4.RELEASE",
+  "org.springframework" % "spring-expression" % "5.3.39",
+  "org.springframework" % "spring-beans" % "5.3.39",
+  "org.springframework" % "spring-context" % "5.3.39",
+  "org.springframework" % "spring-core" % "5.3.39",
   "commons-collections" % "commons-collections" % "3.1",
   "org.apache.wicket" % "wicket-util" % "6.23.0",
   "aopalliance" % "aopalliance" % "1.0",

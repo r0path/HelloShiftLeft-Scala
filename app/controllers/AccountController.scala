@@ -121,7 +121,6 @@ class AccountController @Inject()(cc: ControllerComponents) extends AbstractCont
   def createBean1599() = Action { implicit request =>
     val json = request.body.asJson.get
     val mapper = new ObjectMapper
-    mapper.enableDefaultTyping
     mapper.readValue(json.toString, classOf[Bean1599])
     Ok
   }
