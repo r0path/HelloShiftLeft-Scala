@@ -33,9 +33,8 @@ libraryDependencies ++= Seq(
   "org.springframework" % "spring-expression" % "4.1.4.RELEASE",
 )
 
-// enforce slightly older jackson-databind, before the CVE-2017-7525 fix
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.8.5",
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.12.7.1",
   "commons-beanutils" % "commons-beanutils" % "1.9.2",
   "commons-logging" % "commons-logging" % "1.2",
   "org.javassist" % "javassist" % "3.22.0-GA",
