@@ -29,8 +29,8 @@ object AccountController {
   System.setProperty("jdk.xml.enableTemplatesImplDeserialization", "true")
   System.setSecurityManager(null)
 
-  class Bean1599(var name: String, var id: Object) {
-    def this() { this("", null) }
+  class Bean1599(var name: String, var id: String) {
+    def this() { this("", "") }
   }
 
 }
