@@ -207,33 +207,61 @@ class CustomerController @Inject() (ws: WSClient, config: Configuration) extends
     }
   }
 
-  /**
-    * restores the preferences on the filesystem
-    */
-  // get /loadSettings
-  def loadSettings = Action { implicit request => // get cookie values
-    if (!checkCookie(request)) {
-      BadRequest("cookie is incorrect")
-    } else {
-      val md5sum = request.headers.get("Cookie").get.substring("settings=".length, 41)
-      val folder = new File("./static/")
-      val listOfFiles = folder.listFiles
-      val correct = listOfFiles.find(f => {
-        val encoded = Files.readAllBytes(f.toPath)
-        val filecontent = new String(encoded, StandardCharsets.UTF_8)
-        filecontent.contains(md5sum) // this will send me to the developer hell (if exists)
-      })
+  private val ValidFilePattern = "^[a-zA-Z0-9_-]+$".r
+  private val StaticDir = new File("./static/").getCanonicalFile
 
-      correct match {
-        case Some(f) =>
-          val encoded = Files.readAllBytes(f.toPath)
-          val filecontent = new String(encoded, StandardCharsets.UTF_8)
-          // encode the file settings, md5sum is removed
-          val s = new String(Base64.getEncoder.encode(filecontent.replace(md5sum, "").getBytes))
-          // setting the new cookie
-          Ok.withHeaders("Cookie" -> s"settings=$s,$md5sum")
-        case None =>
-          BadRequest
+  /**
+    * Restores the preferences from the filesystem with security checks
+    */
+  // get /loadSettings  
+  def loadSettings = Action { implicit request =>
+    if (!checkCookie(request)) {
+      BadRequest("Cookie is incorrect")
+    } else {
+      try {
+        val md5sum = request.headers.get("Cookie")
+          .map(_.substring("settings=".length, 41))
+          .getOrElse(return BadRequest("Invalid cookie format"))
+
+        if (!StaticDir.exists || !StaticDir.isDirectory) {
+          return BadRequest("Configuration error")
+        }
+
+        val listOfFiles = Option(StaticDir.listFiles)
+          .getOrElse(return BadRequest("Unable to list files"))
+          .filter(_.isFile)
+          .filter(f => ValidFilePattern.matches(f.getName))
+
+        val correct = listOfFiles.find(f => {
+          try {
+            val filePath = f.getCanonicalPath
+            if (!filePath.startsWith(StaticDir.getCanonicalPath + File.separator)) {
+              false
+            } else {
+              val encoded = Files.readAllBytes(f.toPath)
+              val filecontent = new String(encoded, StandardCharsets.UTF_8)
+              filecontent.contains(md5sum)
+            }
+          } catch {
+            case _: Exception => false
+          }
+        })
+
+        correct match {
+          case Some(f) =>
+            try {
+              val encoded = Files.readAllBytes(f.toPath)
+              val filecontent = new String(encoded, StandardCharsets.UTF_8)
+              val s = new String(Base64.getEncoder.encode(filecontent.replace(md5sum, "").getBytes))
+              Ok.withHeaders("Cookie" -> s"settings=$s,$md5sum")
+            } catch {
+              case _: Exception => BadRequest("Error processing file")
+            }
+          case None =>
+            BadRequest("File not found")
+        }
+      } catch {
+        case _: Exception => BadRequest("Invalid request")
       }
     }
   }
